@@ -17,7 +17,7 @@ public static class ArgsBuilder
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static TypeBuilder For<T>(this ModuleBuilder module, Type constraint, string name, TypeAttributes attributes)
-        => module.For<T>(constraint, name, attributes, null);
+     => module.For<T>(constraint, name, attributes, null);
     public static TypeBuilder For<T>(this ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
         Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
      => ArgsBuilder<T>.Generate(module, constraint, name, attributes, explicitInterfaceMethodNameTranslator);
@@ -44,7 +44,7 @@ public static class ArgsBuilder<T>
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static TypeBuilder Generate(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes)
-        => Generate(module, constraint, name, attributes, null);
+     => Generate(module, constraint, name, attributes, null);
     private static readonly Func<MethodInfo, string> ExplicitInterfaceMethodNameTranslator
       = (method) => method.DeclaringType.FullName + "::" + method.Name;
     public static TypeBuilder Generate(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
