@@ -17,9 +17,6 @@ namespace TypeBuilders
         internal const MethodAttributes InterfaceMethodAttributes =
             MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static TypeBuilder For<T>(this ModuleBuilder module, Type constraint, string name, TypeAttributes attributes)
-         => module.For<T>(constraint, name, attributes, null);
         public static TypeBuilder For<T>(this ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
             Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
          => ArgsBuilder<T>.Default.MakeConstrainedType(module, constraint, name, attributes, explicitInterfaceMethodNameTranslator);
@@ -46,9 +43,6 @@ namespace TypeBuilders
             OwnInterfaces = ThisType.GetInterfaces();
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public TypeBuilder MakeConstrainedType(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes)
-         => MakeConstrainedType(module, constraint, name, attributes, null);
         private static readonly Func<MethodInfo, string> ExplicitInterfaceMethodNameTranslator
           = (method) => method.DeclaringType.FullName + "::" + method.Name;
         public virtual TypeBuilder MakeConstrainedType(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
