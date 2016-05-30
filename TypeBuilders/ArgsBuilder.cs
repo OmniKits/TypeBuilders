@@ -16,10 +16,6 @@ namespace TypeBuilders
         internal static readonly Type TypeValueType = typeof(ValueType);
         internal const MethodAttributes InterfaceMethodAttributes =
             MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
-
-        public static TypeBuilder For<T>(this ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
-            Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
-         => ArgsBuilder<T>.Default.MakeConstrainedType(module, constraint, name, attributes, explicitInterfaceMethodNameTranslator);
     }
 
     public class ArgsBuilder<T>
@@ -27,7 +23,7 @@ namespace TypeBuilders
         protected static readonly Type ThisType = typeof(T);
 
         static readonly Type[] OwnInterfaces;
-        internal static readonly ArgsBuilder<T> Default = new ArgsBuilder<T>();
+        public static ArgsBuilder<T> Default { get; } = new ArgsBuilder<T>();
 
         static ArgsBuilder()
         {

@@ -93,6 +93,13 @@ public class ArgsBuilderTests
 
     #endregion
 
+    class MyBuilder : ArgsBuilder<TargetClass1>
+    {
+        public static new MyBuilder Default { get; } = new MyBuilder();
+    }
+
+    static readonly MyBuilder DefaultBuilder = MyBuilder.Default;
+
     [Fact]
     public void TestGeneration()
     {
@@ -118,7 +125,7 @@ public class ArgsBuilderTests
     private void TestMethod(ModuleBuilder dynMod, MethodInfo method)
     {
         var constraint = method.GetGenericArguments().Single(t => t.IsGenericParameter);
-        var tb = dynMod.For<TargetClass1>(constraint, Guid.NewGuid().ToString(), TypeAttributes.Public);
+        var tb = DefaultBuilder.MakeConstrainedType(dynMod, constraint, Guid.NewGuid().ToString(), TypeAttributes.Public);
         var type = tb.CreateType();
 
         method = method.MakeGenericMethod(type);
