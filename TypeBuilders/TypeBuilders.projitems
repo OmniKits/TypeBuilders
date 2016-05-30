@@ -9,5 +9,8 @@
     <Import_RootNamespace>TypeBuilders</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ArgsBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NewException.cs" />
   </ItemGroup>
 </Project>

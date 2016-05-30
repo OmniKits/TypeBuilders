@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>TypeBuilders</id>
+        <version>0.0</version>
+        <authors>OmniKits</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>-</description>
+    </metadata>
+    <files>
+        <file src="Release\TypeBuilders.dll" target="lib\net40-client\TypeBuilders.dll" />
+    </files>
+</package>

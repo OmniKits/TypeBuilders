@@ -4,8 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
+using static ArgsBuilder;
+using static System.Reflection.GenericParameterAttributes;
+
 public static class ArgsBuilder
 {
+    internal static readonly Type TypeObject = typeof(object);
     internal static readonly Type TypeValueType = typeof(ValueType);
     internal const MethodAttributes InterfaceMethodAttributes =
         MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
@@ -18,7 +22,6 @@ public static class ArgsBuilder<T>
 {
     static readonly Type ThisType = typeof(T);
     static readonly Type[] OwnInterfaces;
-    //static readonly ConstructorInfo BaseConstructor;
 
     static ArgsBuilder()
     {
@@ -30,58 +33,38 @@ public static class ArgsBuilder<T>
 
         if (ThisType.IsSealed && ThisType.IsAbstract)
             throw new InvalidOperationException();
-        //if (ThisType.IsSealed)
-        //{
-        //    if (ThisType.IsAbstract)
-        //        throw new InvalidOperationException();
-        //}
-        //else
-        //{
-        //    var q = from ci in ThisType.GetConstructors(TypeHelpers.InstanceMemberBindingFlags)
-        //            where ci.IsVisibleToDerived()
-        //            select ci;
-        //    var candidates = q.ToArray();
-
-        //    BaseConstructor = Type.DefaultBinder.SelectMethod(TypeHelpers.InstanceMemberBindingFlags,
-        //        candidates, new[] { ThisType }, null) as ConstructorInfo;
-        //}
 
         OwnInterfaces = ThisType.GetInterfaces();
     }
 
     public static TypeBuilder Generate(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes)
     {
-        //var noInheritance = BaseConstructor == null;
-
         #region ensure arguments
 
         if (module == null)
             throw new ArgumentNullException(nameof(module));
+
+        #region check argument constraint
 
         if (constraint == null)
             throw new ArgumentNullException(nameof(constraint));
 
         if (!constraint.IsGenericParameter)
             throw NewException.ForInvalidArgument(nameof(constraint));
+
+        var gpAttrs = constraint.GenericParameterAttributes;
+        if((gpAttrs & (DefaultConstructorConstraint | NotNullableValueTypeConstraint)) == DefaultConstructorConstraint)
+            throw NewException.ForInvalidArgument(nameof(constraint));
+
         var interfaces = constraint.GetInterfaces();
         if (interfaces.Length == 0)
             throw NewException.ForInvalidArgument(nameof(constraint));
+
         Type @base = constraint.BaseType;
-        if (@base != null && @base != typeof(object))
-        {
-            if (@base != typeof(ValueType))
-                throw new InvalidOperationException();
-
-            //noInheritance = true;
-        }
-        //else if (!noInheritance)
-        //{
-        //    @base = ThisType;
-        //}
-
-        interfaces = interfaces.Where(itfc => /*noInheritance ||*/ !OwnInterfaces.Contains(itfc)).ToArray();
-        if (interfaces.Length == 0)
-            return null;
+        if (@base != null && @base != TypeObject && @base != TypeValueType)
+            throw NewException.ForInvalidArgument(nameof(constraint));
+        
+        #endregion
 
         if (name == null)
             throw new ArgumentNullException(nameof(name));
@@ -93,19 +76,12 @@ public static class ArgsBuilder<T>
         var type = module.DefineType(name, attributes, @base, interfaces);
 
         var field = type.DefineField("@", ThisType, FieldAttributes.Private | FieldAttributes.InitOnly);
-        //FieldInfo field = null;
         {
-            var ctor = type.DefineConstructor(MethodAttributes.Public | MethodAttributes.NewSlot, CallingConventions.HasThis, new[] { ThisType });
+            var ctor = type.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new[] { ThisType });
             var ilGen = ctor.GetILGenerator();
             ilGen.Emit(OpCodes.Ldarg_0);
             ilGen.Emit(OpCodes.Ldarg_1);
-            //if (!noInheritance)
-            //    ilGen.Emit(OpCodes.Call, BaseConstructor);
-            //else
-            //{
-            //field = type.DefineField("@", ThisType, FieldAttributes.Private | FieldAttributes.InitOnly);
             ilGen.Emit(OpCodes.Stfld, field);
-            //}
             ilGen.Emit(OpCodes.Ret);
         }
 
@@ -126,11 +102,11 @@ public static class ArgsBuilder<T>
 
             MethodBuilder @new;
             if (!isExplicit)
-                @new = type.DefineMethod(mi.Name, ArgsBuilder.InterfaceMethodAttributes | MethodAttributes.Public, mi.ReturnType, paramTypes);
+                @new = type.DefineMethod(mi.Name, InterfaceMethodAttributes | MethodAttributes.Public, mi.ReturnType, paramTypes);
             else
             {
                 @new = type.DefineMethod(mi.DeclaringType.FullName + "::" + mi.Name,
-                    ArgsBuilder.InterfaceMethodAttributes | MethodAttributes.Private, mi.ReturnType, paramTypes);
+                    InterfaceMethodAttributes | MethodAttributes.Private, mi.ReturnType, paramTypes);
             }
 
             for (var i = 0; i < @params.Length;)
@@ -141,7 +117,6 @@ public static class ArgsBuilder<T>
 
             var ilGen = @new.GetILGenerator();
             ilGen.Emit(OpCodes.Ldarg_0);
-            //if (noInheritance)
             ilGen.Emit(OpCodes.Ldfld, field);
             for (var i = 0; i < @params.Length;)
                 ilGen.Emit(OpCodes.Ldarg_S, (byte)++i);

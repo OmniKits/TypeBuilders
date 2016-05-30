@@ -5,9 +5,28 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TypeBuilders", "TypeBuilders\TypeBuilders.shproj", "{D70F6D92-3521-4EF5-B091-2A571690D3EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeBuilders.NET40", "TypeBuilders.NET40\TypeBuilders.NET40.csproj", "{C94BAA4D-6692-4685-946C-CA64AA7E5F8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeBuildersTests", "TypeBuildersTests\TypeBuildersTests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		TypeBuilders\TypeBuilders.projitems*{d70f6d92-3521-4ef5-b091-2a571690d3ea}*SharedItemsImports = 13
+		TypeBuilders\TypeBuilders.projitems*{c94baa4d-6692-4685-946c-ca64aa7e5f8d}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C94BAA4D-6692-4685-946C-CA64AA7E5F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C94BAA4D-6692-4685-946C-CA64AA7E5F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C94BAA4D-6692-4685-946C-CA64AA7E5F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C94BAA4D-6692-4685-946C-CA64AA7E5F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
