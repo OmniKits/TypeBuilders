@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -14,8 +15,12 @@ public static class ArgsBuilder
     internal const MethodAttributes InterfaceMethodAttributes =
         MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static TypeBuilder For<T>(this ModuleBuilder module, Type constraint, string name, TypeAttributes attributes)
-        => ArgsBuilder<T>.Generate(module, constraint, name, attributes);
+        => module.For<T>(constraint, name, attributes, null);
+    public static TypeBuilder For<T>(this ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
+        Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
+     => ArgsBuilder<T>.Generate(module, constraint, name, attributes, explicitInterfaceMethodNameTranslator);
 }
 
 public static class ArgsBuilder<T>
@@ -37,7 +42,13 @@ public static class ArgsBuilder<T>
         OwnInterfaces = ThisType.GetInterfaces();
     }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static TypeBuilder Generate(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes)
+        => Generate(module, constraint, name, attributes, null);
+    private static readonly Func<MethodInfo, string> ExplicitInterfaceMethodNameTranslator
+      = (method) => method.DeclaringType.FullName + "::" + method.Name;
+    public static TypeBuilder Generate(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
+        Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
     {
         #region ensure arguments
 
@@ -53,7 +64,7 @@ public static class ArgsBuilder<T>
             throw NewException.ForInvalidArgument(nameof(constraint));
 
         var gpAttrs = constraint.GenericParameterAttributes;
-        if((gpAttrs & (DefaultConstructorConstraint | NotNullableValueTypeConstraint)) == DefaultConstructorConstraint)
+        if ((gpAttrs & (DefaultConstructorConstraint | NotNullableValueTypeConstraint)) == DefaultConstructorConstraint)
             throw NewException.ForInvalidArgument(nameof(constraint));
 
         var interfaces = constraint.GetInterfaces();
@@ -63,7 +74,7 @@ public static class ArgsBuilder<T>
         Type @base = constraint.BaseType;
         if (@base != null && @base != TypeObject && @base != TypeValueType)
             throw NewException.ForInvalidArgument(nameof(constraint));
-        
+
         #endregion
 
         if (name == null)
@@ -95,7 +106,7 @@ public static class ArgsBuilder<T>
 
         foreach (var mi in methods)
         {
-            var isExplicit = hashset.Contains(mi.Name);
+            var isExplicit = explicitInterfaceMethodNameTranslator != null || hashset.Contains(mi.Name);
 
             var @params = mi.GetParameters();
             var paramTypes = @params.Select(p => p.ParameterType).ToArray();
@@ -105,7 +116,7 @@ public static class ArgsBuilder<T>
                 @new = type.DefineMethod(mi.Name, InterfaceMethodAttributes | MethodAttributes.Public, mi.ReturnType, paramTypes);
             else
             {
-                @new = type.DefineMethod(mi.DeclaringType.FullName + "::" + mi.Name,
+                @new = type.DefineMethod((explicitInterfaceMethodNameTranslator ?? ExplicitInterfaceMethodNameTranslator).Invoke(mi),
                     InterfaceMethodAttributes | MethodAttributes.Private, mi.ReturnType, paramTypes);
             }
 

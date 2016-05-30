@@ -116,8 +116,7 @@ public class ArgsBuilderTests
     private void TestMethod(ModuleBuilder dynMod, MethodInfo method)
     {
         var constraint = method.GetGenericArguments().Single(t => t.IsGenericParameter);
-        var tb = ArgsBuilder<TargetClass1>.Generate(dynMod,
-            constraint, Guid.NewGuid().ToString(), TypeAttributes.Public);
+        var tb = dynMod.For<TargetClass1>(constraint, Guid.NewGuid().ToString(), TypeAttributes.Public);
         var type = tb.CreateType();
 
         method = method.MakeGenericMethod(type);
