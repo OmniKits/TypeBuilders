@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Xunit;
 
+using TypeBuilders;
+
 public class ArgsBuilderTests
 {
     #region testimony classes
