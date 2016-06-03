@@ -9,10 +9,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeBuilders.NET40", "TypeB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeBuildersTests", "TypeBuildersTests\TypeBuildersTests.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TypeBuilders.TransADO", "TypeBuilders.TransADO\TypeBuilders.TransADO.shproj", "{D4F4D40A-251E-47F3-91CF-8FA49D6634A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeBuilders.TransADO.NET40", "TypeBuilders.TransADO.NET40\TypeBuilders.TransADO.NET40.csproj", "{14C2A1A1-02DF-499C-AFBE-AECEC99638AC}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		TypeBuilders.TransADO\TypeBuilders.TransADO.projitems*{14c2a1a1-02df-499c-afbe-aecec99638ac}*SharedItemsImports = 4
 		TypeBuilders\TypeBuilders.projitems*{d70f6d92-3521-4ef5-b091-2a571690d3ea}*SharedItemsImports = 13
 		TypeBuilders\TypeBuilders.projitems*{c94baa4d-6692-4685-946c-ca64aa7e5f8d}*SharedItemsImports = 4
+		TypeBuilders.TransADO\TypeBuilders.TransADO.projitems*{d4f4d40a-251e-47f3-91cf-8fa49d6634a9}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,10 @@ Global
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14C2A1A1-02DF-499C-AFBE-AECEC99638AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14C2A1A1-02DF-499C-AFBE-AECEC99638AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14C2A1A1-02DF-499C-AFBE-AECEC99638AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14C2A1A1-02DF-499C-AFBE-AECEC99638AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

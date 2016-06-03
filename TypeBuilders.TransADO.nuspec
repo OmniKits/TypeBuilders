@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+    <metadata>
+        <id>TypeBuilders.TransADO</id>
+        <version>0.0</version>
+        <authors>OmniKits</authors>
+        <projectUrl>https://github.com/OmniKits/TypeBuilders</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>-</description>
+        <dependencies>
+            <dependency id="TypeBuilders" version="0.5" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="Release\TypeBuilders.TransADO.NET\TypeBuilders.TransADO.NET.dll" target="lib\net40-client\TypeBuilders.TransADO.NET.dll" />
+    </files>
+</package>
