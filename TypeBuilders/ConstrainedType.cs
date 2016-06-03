@@ -7,10 +7,10 @@ using System.Reflection.Emit;
 
 namespace TypeBuilders
 {
-    using static ArgsBuilder;
+    using static Builders;
     using static GenericParameterAttributes;
 
-    public static class ArgsBuilder
+    static class Builders
     {
         internal static readonly Type TypeObject = typeof(object);
         internal static readonly Type TypeValueType = typeof(ValueType);
@@ -18,14 +18,11 @@ namespace TypeBuilders
             MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
     }
 
-    public class ArgsBuilder<T>
+    public abstract class ConstrainedType<T>
     {
         protected static readonly Type ThisType = typeof(T);
 
-        static readonly Type[] OwnInterfaces;
-        public static ArgsBuilder<T> Default { get; } = new ArgsBuilder<T>();
-
-        static ArgsBuilder()
+        static ConstrainedType()
         {
             if (ThisType.IsInterface)
                 throw new NotSupportedException();
@@ -35,13 +32,11 @@ namespace TypeBuilders
 
             if (ThisType.IsSealed && ThisType.IsAbstract)
                 throw new InvalidOperationException();
-
-            OwnInterfaces = ThisType.GetInterfaces();
         }
 
         private static readonly Func<MethodInfo, string> ExplicitInterfaceMethodNameTranslator
           = (method) => method.DeclaringType.FullName + "::" + method.Name;
-        public virtual TypeBuilder MakeConstrainedType(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
+        public virtual TypeBuilder DefineType(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
             Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
         {
             #region ensure arguments
@@ -54,18 +49,28 @@ namespace TypeBuilders
             if (constraint == null)
                 throw new ArgumentNullException(nameof(constraint));
 
-            if (!constraint.IsGenericParameter)
-                throw NewException.ForInvalidArgument(nameof(constraint));
-
-            var gpAttrs = constraint.GenericParameterAttributes;
-            if ((gpAttrs & (DefaultConstructorConstraint | NotNullableValueTypeConstraint)) == DefaultConstructorConstraint)
-                throw NewException.ForInvalidArgument(nameof(constraint));
-
+            var @base = constraint.BaseType;
             var interfaces = constraint.GetInterfaces();
-            if (interfaces.Length == 0)
-                throw NewException.ForInvalidArgument(nameof(constraint));
+            if (!constraint.IsGenericParameter)
+            {
+                if (!constraint.IsInterface)
+                    throw NewException.ForInvalidArgument(nameof(constraint));
 
-            Type @base = constraint.BaseType;
+                var tmp = new Type[interfaces.Length + 1];
+                tmp[0] = constraint;
+                interfaces.CopyTo(tmp, 1);
+                interfaces = tmp;
+            }
+            else
+            {
+                var gpAttrs = constraint.GenericParameterAttributes;
+                if ((gpAttrs & (DefaultConstructorConstraint | NotNullableValueTypeConstraint)) == DefaultConstructorConstraint)
+                    throw NewException.ForInvalidArgument(nameof(constraint));
+
+                if (interfaces.Length == 0)
+                    throw NewException.ForInvalidArgument(nameof(constraint));
+            }
+
             if (@base != null && @base != TypeObject && @base != TypeValueType)
                 throw NewException.ForInvalidArgument(nameof(constraint));
 
@@ -78,7 +83,7 @@ namespace TypeBuilders
 
             #endregion
 
-            var type = module.DefineType(name, attributes, @base, interfaces);
+            var type = module.DefineType(name, attributes, @base, interfaces.ToArray());
 
             var input = type.DefineField("@", ThisType, FieldAttributes.Private | FieldAttributes.InitOnly);
             var ctor = type.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new[] { ThisType });
@@ -133,19 +138,6 @@ namespace TypeBuilders
             }
         }
 
-        public virtual void ImplementInterfaceMethod(MethodInfo declaration, MethodBuilder implement, FieldInfo input)
-        {
-            var @params = declaration.GetParameters();
-            var callee = ThisType.GetMethod(declaration.Name, BindingFlags.Public | BindingFlags.Instance,
-                null, @params.Select(p => p.ParameterType).ToArray(), null);
-
-            var ilGen = implement.GetILGenerator();
-            ilGen.Emit(OpCodes.Ldarg_0);
-            ilGen.Emit(OpCodes.Ldfld, input);
-            for (var i = 0; i < @params.Length;)
-                ilGen.Emit(OpCodes.Ldarg_S, (byte)++i);
-            ilGen.Emit(OpCodes.Call, callee);
-            ilGen.Emit(OpCodes.Ret);
-        }
+        public abstract void ImplementInterfaceMethod(MethodInfo declaration, MethodBuilder implement, FieldInfo input);
     }
 }

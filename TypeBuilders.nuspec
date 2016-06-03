@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>TypeBuilders</id>
-        <version>0.3</version>
+        <version>0.4</version>
         <authors>OmniKits</authors>
         <projectUrl>https://github.com/OmniKits/TypeBuilders</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>

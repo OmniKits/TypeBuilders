@@ -6,7 +6,7 @@ using Xunit;
 
 using TypeBuilders;
 
-public class ArgsBuilderTests
+public class ArgumentProxyTests
 {
     #region testimony classes
 
@@ -77,6 +77,17 @@ public class ArgsBuilderTests
 
     #endregion
 
+    #region just interface
+
+    //public int Method1i(IHasInt32 input)
+    // => input.Int32;
+    //public int Method1i(IHasUInt8 input)
+    // => input.UInt8;
+    public int Method1i(IHasInts input)
+     => input.Int32 + input.UInt8;
+
+    #endregion
+
     #region two interfaces
 
     public int Method2<T>(T input)
@@ -93,7 +104,7 @@ public class ArgsBuilderTests
 
     #endregion
 
-    class MyBuilder : ArgsBuilder<TargetClass1>
+    class MyBuilder : ArgumentProxy<TargetClass1>
     {
         public static new MyBuilder Default { get; } = new MyBuilder();
     }
@@ -107,28 +118,31 @@ public class ArgsBuilderTests
         var dynAsm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave);
         var dynMod = dynAsm.DefineDynamicModule(asmName.Name);
 
-        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method0))));
-        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method0n))));
-        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method0s))));
+        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method0))));
+        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method0n))));
+        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method0s))));
 
-        TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method1)));
-        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method1n))));
-        TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method1s)));
+        TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method1)));
+        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method1n))));
+        TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method1s)));
 
-        TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method2)));
-        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method2n))));
-        TestMethod(dynMod, typeof(ArgsBuilderTests).GetMethod(nameof(Method2s)));
+        TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method1i)));
+
+        TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method2)));
+        Assert.ThrowsAny<ArgumentException>(() => TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method2n))));
+        TestMethod(dynMod, typeof(ArgumentProxyTests).GetMethod(nameof(Method2s)));
 
         dynAsm.Save(asmName.Name);
     }
 
     private void TestMethod(ModuleBuilder dynMod, MethodInfo method)
     {
-        var constraint = method.GetGenericArguments().Single(t => t.IsGenericParameter);
-        var tb = DefaultBuilder.MakeConstrainedType(dynMod, constraint, Guid.NewGuid().ToString(), TypeAttributes.Public);
+        var constraint = method.GetParameters().Single().ParameterType;
+        var tb = DefaultBuilder.DefineType(dynMod, constraint, Guid.NewGuid().ToString(), TypeAttributes.Public);
         var type = tb.CreateType();
 
-        method = method.MakeGenericMethod(type);
+        if (constraint.IsGenericParameter)
+            method = method.MakeGenericMethod(type);
         var rnd = new Random();
         var o = new TargetClass1 { UInt8 = (byte)rnd.Next(), Int32 = rnd.Next() };
         Assert.Equal(o.UInt8 + o.Int32, method.Invoke(this, new[] { Activator.CreateInstance(type, o) }));
