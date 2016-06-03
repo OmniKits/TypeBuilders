@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>TypeBuilders</id>
-        <version>0.4</version>
+        <version>0.5</version>
         <authors>OmniKits</authors>
         <projectUrl>https://github.com/OmniKits/TypeBuilders</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>-</description>
     </metadata>
     <files>
-        <file src="Release\TypeBuilders.dll" target="lib\net40-client\TypeBuilders.dll" />
+        <file src="Release\TypeBuilders.NET40\TypeBuilders.dll" target="lib\net40-client\TypeBuilders.dll" />
     </files>
 </package>

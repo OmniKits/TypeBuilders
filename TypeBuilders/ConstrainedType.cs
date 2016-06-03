@@ -24,9 +24,6 @@ namespace TypeBuilders
 
         static ConstrainedType()
         {
-            if (ThisType.IsInterface)
-                throw new NotSupportedException();
-
             if (ThisType.ContainsGenericParameters)
                 throw new InvalidOperationException();
 

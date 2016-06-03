@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Xunit;
 
+using Xunit;
 using TypeBuilders;
 
 public class ArgumentProxyTests
