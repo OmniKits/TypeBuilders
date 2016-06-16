@@ -11,7 +11,7 @@ namespace TypeBuilders
     {
         public static ArgumentProxy<T> Default { get; } = new ArgumentProxy<T>();
 
-        public override void ImplementInterfaceMethod(MethodInfo declaration, MethodBuilder implement, FieldInfo input)
+        public override void ImplementMethod(MethodInfo declaration, MethodBuilder implement, FieldInfo input)
         {
             var @params = declaration.GetParameters();
             var callee = ThisType.GetMethod(declaration.Name, BindingFlags.Public | BindingFlags.Instance,

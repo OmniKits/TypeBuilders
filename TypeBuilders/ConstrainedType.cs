@@ -33,7 +33,7 @@ namespace TypeBuilders
 
         private static readonly Func<MethodInfo, string> ExplicitInterfaceMethodNameTranslator
           = (method) => method.DeclaringType.FullName + "::" + method.Name;
-        public virtual TypeBuilder DefineType(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
+        public virtual TypeBuilder DraftType(ModuleBuilder module, Type constraint, string name, TypeAttributes attributes,
             Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
         {
             #region ensure arguments
@@ -90,12 +90,12 @@ namespace TypeBuilders
             ilGen.Emit(OpCodes.Stfld, input);
             ilGen.Emit(OpCodes.Ret);
 
-            ImplementInterfaceMethods(type, input, explicitInterfaceMethodNameTranslator);
+            FillInMethods(type, input, explicitInterfaceMethodNameTranslator);
 
             return type;
         }
 
-        public virtual void ImplementInterfaceMethods(TypeBuilder type, FieldInfo input,
+        public virtual void FillInMethods(TypeBuilder type, FieldInfo input,
             Func<MethodInfo, string> explicitInterfaceMethodNameTranslator = null)
         {
             var methods = type.GetInterfaces().SelectMany(itfc => itfc.GetMethods()).ToArray();
@@ -128,13 +128,13 @@ namespace TypeBuilders
                     @new.DefineParameter(i, p.Attributes, p.Name);
                 }
 
-                ImplementInterfaceMethod(mi, @new, input);
+                ImplementMethod(mi, @new, input);
 
                 if (isExplicit)
                     type.DefineMethodOverride(@new, mi);
             }
         }
 
-        public abstract void ImplementInterfaceMethod(MethodInfo declaration, MethodBuilder implement, FieldInfo input);
+        public abstract void ImplementMethod(MethodInfo declaration, MethodBuilder implementation, FieldInfo input);
     }
 }
